@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="ui center aligned grid" style="min-height: 100%">
+    <div class="ui center aligned grid">
+        <div class="ui card twelve wide computer fourteen wide mobile column" style="background-color: #ffffffc1;">
+            <div class="content">
+                <div class="center aligned header">
+                    <h2>
+                        我的名片
+                    </h2>
+                </div>
+                <div class="center aligned description">
+                    <p>
+                    <h4>
+                        {% if request.user.facility %}
+                        {{ request.user.facility.name }}
+                        {% else %}
+                        Null
+                        {% endif %} | {{ request.user.role }}
+                    </h4>
+                    </p>
+                </div>
+            </div>
+            <div class="extra content">
+                <div class="center aligned author">
+                    <img class="ui avatar image" src="{{ request.user.avatar.url }}"> {{request.user.username}}
+                </div>
+                <a class="ui right floated labeled icon button" href="{% url 'user:editProfile' %}">
+                    <i class="fa-solid fa-gear icon"></i> 修改个人信息
+                </a>
+            </div>
+        </div>
+        <div class="row" >
+            <h4 class="ui header" >
+                <i class="bar chart icon"></i>
+                数据
+            </h4>
+        </div>
+
+        <div class="row">
+            <div class="ui ten wide computer ten wide tablet sixteen wide mobile column" style="background-color: rgba(255, 255, 255, 0.845);">
+                <canvas id="problems-statistics" />
+            </div>
+            <div class="ui five wide computer six wide tablet sixteen wide mobile column" style="background-color: #ffffffd8;">
+                <canvas id="solution-percentage" />
+            </div>
+        </div>
+    </div>
+    <div class="ui ten wide computer fourteen wide mobile column" style="background-color: rgb(255, 255, 255);">
+        <h4 class="ui header" >
+            <i class="bar chart icon"></i>
+            错题词云
+        </h4>
+        {% if tag_exist == 1 %}
+        <img src="{% url 'user:cloud' %}" style="max-width: 100%">
+        {% endif %}
+    </div>
+
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const dates = [];
+
+    for (var i = 0; i < 28; ++i) {
+        const t = new Date();
+        t.setDate(t.getDate() - i);
+        dates.push(t.getMonth().toString() + '/' + t.getDate().toString());
+    }
+
+    new Chart(document.getElementById('problems-statistics'), {
+        type: 'line',
+        data: {
+            labels: dates.reverse(),
+            datasets: [{
+                label: '提交数',
+                data: JSON.parse('{{ stat.solution_trend }}').reverse()
+            }]
+        }
+    });
+
+    const accepted = Number('{{ stat.accepted_solutions }}');
+    const total = Number('{{ stat.total_solutions }}');
+    const unjudged = Number('{{ stat.unjudged_solutions }}');
+
+    new Chart(document.getElementById('solution-percentage'), {
+        type: 'doughnut',
+        data: {
+            labels: ['通过', '未通过', '未评分'],
+            datasets: [{
+                label: '提交数',
+                backgroundColor: [
+                    'rgb(161, 250, 79)',
+                    'rgb(235, 79, 58)',
+                    'rgb(144, 144, 144)'
+                ],
+                data: [accepted, total - accepted - unjudged, unjudged],
+                weight: 0.5,
+            }],
+        }
+    })
+</script>
+{% endblock %}

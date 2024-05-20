@@ -1,0 +1,38 @@
+{% extends "paper/base.html" %}
+
+{% load static %}
+{% load markdown %}
+
+{% block content %}
+<div class="ui padded text container segment" style="padding-top: 24px; background-color: #ffffffac;">
+    <h1 class="ui center aligned header" style="margin-top: 24px;text-align: center;">批改试卷 | {{ submission.paper.title }}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% for answer in answers %}
+        <div class="ui left aligned container">
+            <h2>
+                {{ forloop.counter }}. {{ answer.problem.raw.title }} ({{ answer.problem.score }} 分)
+            </h2>
+            <div>
+                {{ answer.problem.raw.statement | markdown | safe }}
+            </div>
+
+            <h4 style="margin-top: 24px;text-align: center;">
+                {{ submission.student.username }}的答案：{{ answer.answer }}
+            </h4>
+        </div>
+        <div class="ui fluid input">
+            <input type="number" min="0" placeholder="给这道题评分..." max="{{ answer.problem.score }}" name="score-{{ answer.id }}">
+        </div>
+        {% endfor %}
+        <div class="ui center aligned grid" style="margin-top: 24px;">
+            <button class="ui green button" type="submit">
+                <i class="fa-solid fa-check"></i> 提交
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

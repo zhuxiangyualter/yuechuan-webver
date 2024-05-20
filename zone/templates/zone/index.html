@@ -1,0 +1,37 @@
+{% extends "zone/base.html" %}
+{% load static %}
+{% load markdown %}
+
+{% block content %}
+<div class="ui center aligned middle aligned grid" style="min-height: 100%;">
+    <div class="ten wide computer ten wide tablet sixteen wide mobile column">
+        {% for post in posts %}
+        <div class="ui segment" style="background-color: rgba(255, 255, 255, 0.607);">
+            <h1>
+                <a href="{% url 'zone:view' post.id %}" style="color:inherit">
+                    {% if post.title %}
+                    {{ post.title }}
+                    {% else %}
+                    <i>无标题</i>
+                    {% endif %}
+                </a>
+            </h1>
+
+            <p>
+                {{ post.date|date:"Y/m/d"}} | 由 {{ post.author.username }} 撰写
+            </p>
+
+            <div>
+                {{ post.content|truncatechars:32|unmarkdown }}
+            </div>
+
+            <div style="font-weight: bold;color: rgb(232, 96, 23);">
+                {% for tag in post.tag_set.all %}
+                {{ tag.text }}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

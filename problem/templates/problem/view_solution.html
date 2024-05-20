@@ -1,0 +1,69 @@
+{% extends "problem/base.html" %}
+{% load static %}
+{% load markdown %}
+{% block content %}
+
+<div class="ui center aligned grid">
+    <div class="ui twelve wide mobile column segment" style="background-color: #ffffffc1;">
+        <p>
+            {{ solution.problem.statement | markdown | safe }}
+        </p>
+        <div class="ui divider"></div>
+        <div class="ui text container">
+            <div class="twelve wide mobile column">
+                <p>
+                    {{ solution.content }}
+                </p>
+            </div>
+        </div>
+        <div class="ui divider"></div>
+        <p>
+            解答来自: {{solution.creator}}
+        </p>
+    </div>
+<div class="row">
+    <div class="ten wide computer ten wide tablet sixteen wide mobile column">
+        <div class="ui text container" >
+            <form method="POST">
+                {% csrf_token %}
+                <div class="ui form">
+                    <div class="field" style="display: flex;">
+                        <input name="comment" placeholder="点评一下这篇题解" required>
+                        <button class="ui button" type="submit" style="font-weight: bold;">OK</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="ui text container comment-container">
+        <div class="ui segment" id="post-back" style="background-color: #ffffffc1;">
+        {% for comment in comments %}
+        <div class="ui left aligned container comment" style="margin: 12px;"
+            data-reply="{{ comment.reply.id | default:'' }}" data-id="{{ comment.id }}">
+            
+            <span>
+                <b>
+                    {{ comment.author.username }}
+                </b>
+                <span class="comment-date"> #{{ comment.id }} {{ comment.date|date:"Y/m/d H:i:s" }}</span>
+            </span>
+            <p>
+                {{ comment.content }}
+            </p>
+
+            <div class="reply-container">
+            </div>
+        </div>
+        {% empty %}
+        <i>
+            看起来还没有人点评这篇题解
+        </i>
+    </div>
+        {% endfor %}
+    </div>
+</div>
+</div>
+
+{% endblock %}

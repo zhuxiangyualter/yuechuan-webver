@@ -1,0 +1,122 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>阅 川</title>
+
+    <link rel="stylesheet" href="{% static 'css/semantic.min.css' %}" />
+    <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'js/semantic.min.js' %}"></script>
+
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
+
+    {% block head %}{% endblock %}
+</head>
+
+<style>
+    body {
+        background-image: url("{% static 'img/background.png' %}");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+</style> 
+
+<body>
+    <div class="ui sidebar inverted left vertical menu mobile-only" style="margin: 0;">
+        {% include "component/sidebar.html" %}
+    </div>
+    <div class="ui top fixed inverted menu mobile-only">
+        <button class="item" onclick="toggleSidebar()">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+    <div class="pusher" style="min-height: 100vh; height: 0;">
+        <div class="ui inverted fixed left vertical grey huge relaxed menu computer-only"
+            style="height: 100%; width: 200px; display: flex; flex-direction: column; background-color: #96969373; display: flex;">
+            <div>
+                {% include "component/sidebar.html" %}
+            </div>
+            <div style="text-align: center; margin-top: auto; margin-bottom: 24px;">
+                <div class="ui link" style="font-size: x-small;">
+                    基于大语言模型的历史教学平台
+                </div>
+            </div>
+        </div>
+        <div class="main-content" style="min-height: 100%; height: 0; display: flex; flex-direction: column;">
+            <div class="ui top large menu" style="background-color: #969693d5;">
+                {% block topmenu %}{% endblock %}
+
+                <div class="right borderless menu">
+                    <div class="ui right top pointing dropdown link item">
+                        <div class="text">
+                            {% if request.user.avatar %}
+                            <img class="ui avatar image" src="{{ request.user.avatar.url }}">
+                            {% else %}
+                            未登录
+                            {% endif %}
+                        </div>
+                        <i class="dropdown icon"></i>
+                        <div class="menu" style="z-index: 9999999;">
+                            {% if request.user.is_anonymous %}
+                            <a class="item" href="{% url 'user:login' %}" style="min-width: 128px;">
+                                <i class="fa-solid fa-right-to-bracket"></i> 登录
+                            </a>
+                            <a class="item" href="{% url 'user:register' %}" style="min-width: 128px;">
+                                <i class="fa-solid fa-right-from-bracket"></i> 注册
+                            </a>
+                            {% else %}
+                            <a class="item" href="{% url 'user:profile' %}" style="min-width: 128px;">
+                                <i class="fa-solid fa-user"></i>
+                                个人
+                            </a>
+                            <a class="item" href="{% url 'user:login' %}" style="min-width: 128px;">
+                                <i class="fa-solid fa-right-to-bracket"></i> 登录页
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column;">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    function toggleSidebar() {
+        $('.ui.sidebar').sidebar('toggle');
+    }
+    $('.ui.top.menu').find('.ui.dropdown').dropdown({
+        action: 'none'
+    });
+    $('.ui.vertical.menu').find('a.item').each((i, e) => {
+        if (e.attributes['href'].value == window.location.pathname) {
+            $(e).addClass('active');
+        }
+    });
+    $('.ui.sidebar').find('a.item').each((i, e) => {
+        if (e.attributes['href'].value == window.location.pathname) {
+            $(e).addClass('active');
+        }
+    });
+    $('.ui.top.menu').find('a.item').each((i, e) => {
+        if (e.attributes['href'].value == window.location.pathname) {
+            $(e).addClass('active');
+            $('a.item').filter((i, f) => $(f).data('app') == $(e).data('slave-app')).addClass('active');
+        }
+    })
+</script>
+
+</html>

@@ -1,0 +1,149 @@
+{% extends "adminc/base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<style>
+    .icon:not(.ui) {
+        pointer-events: none;
+    }
+</style>
+
+<div class="ui center aligned middle aligned grid" style="height: 100%">
+
+    <div class="ui nine wide computer nine wide tablet sixteen wide mobile column">
+        <h1>班级列表</h1>
+        <table class="ui center aligned  celled table">
+            <thead>
+                <tr>
+                    <th id="list">ID</th>
+                    <th id="list">班级名称</th>
+                    <th id="list">邀请码</th>
+                    <th id="list">鉴权密钥</th>
+                    <th id="list">操作</th>
+                </tr>
+            </thead>
+            <tbody id="list">
+                {% for facility in facilities %}
+                <tr data-facility-id="{{ facility.id }}">
+                    <td>{{ facility.id }}</td>
+                    <td>{{ facility.name }}</td>
+                    <td>{{ facility.invitation_code }}</td>
+                    <td>{{ facility.secret }}</td>
+                    <td>
+                        <div class="ui icon buttons">
+                            <button class="ui icon button button-delete-facility" data-content="删除">
+                                <i class="fa-solid fa-trash icon"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="4" id="list">
+                        <div class="ui two item menu">
+                            <a class="menu item" id="button-prev">
+                                <i class="fa-solid fa-angle-left icon"></i>
+                            </a>
+                
+                            <a class="menu item" id="button-next">
+                                <i class="fa-solid fa-angle-right icon"></i>
+                            </a>
+                        </div>
+                    </th>
+                    <th  id="list">
+                        <button class="ui blue button" id="button-new-facility" style="background-color: rgba(123, 166, 166, 0.478);">
+                            <i class="fa-solid fa-plus"></i> 新建
+                        </button>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<div class="ui modal">
+    <div class="header" id="list">
+        新建班级
+    </div>
+
+    <div class="content" id="list">
+        <form class="ui form" method="post" id="form-new-facility">
+            {% csrf_token %}
+            <input type="hidden" name="type" value="new">
+            <input type="hidden" name="id">
+            <div class="field">
+                <input type="text" name="name" placeholder="班级名称" required>
+            </div>
+
+            <div class="field">
+                <input type="number" name="invitation_code" placeholder="班级邀请码(留空以随机生成)" pattern="\d{9}">
+            </div>
+
+            <div class="field">
+                <input type="text" name="secret" placeholder="班级密钥(留空以随机生成)" pattern="[0-9a-fA-F]{16}">
+            </div>
+        </form>
+    </div>
+
+    <div class="actions" id="list">
+        <button class="ui red deny button">
+            取消
+        </button>
+        <button class="ui green button" type="submit" form="form-new-facility">
+            确认
+        </button>
+    </div>
+</div>
+
+<script>
+    $('#button-new-facility').click(() => {
+        $('.ui.modal').modal('show');
+    });
+
+    $('.button-delete-facility').click(function () {
+        const q = $(this);
+        const id = q.parents('tr').data('facility-id');
+
+        $.ajax({
+            method: 'POST',
+            url: '{% url "adminc:facility" %}',
+            data: {
+                type: 'delete',
+                id: id
+            },
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            beforeSend: () => {
+                q.addClass('disabled').addClass('loading');
+            },
+            success: () => {
+                window.location.reload();
+            }
+        });
+    });
+    
+    const page = Number(new URL(window.location).searchParams.get('page') ?? 1);
+    const totalPages = Number('{{ pages }}');
+
+    if (page == 1) {
+        $('#button-prev').addClass('disabled');
+    }
+    else {
+        $('#button-prev').attr('href', `${window.location.pathname}?page=${page - 1}`);
+    }
+
+    if (page == totalPages) {
+        $('#button-next').addClass('disabled');
+    }
+    else {
+        $('#button-next').attr('href', `${window.location.pathname}?page=${page + 1}`);
+    }
+
+</script>
+
+{% endblock %}

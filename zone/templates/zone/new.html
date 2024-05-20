@@ -1,0 +1,63 @@
+{% extends "zone/base.html" %}
+
+{% load static %}
+
+{% block content %}
+<style>
+    .editor-container {
+        text-align: left !important;
+    }
+
+</style>
+
+
+<div class="ui center aligned middle aligned grid" style="min-height: 100%">
+    <div class="ten wide computer ten wide tablet sixteen wide mobile column ui segment">
+        <h1>
+            新文章
+        </h1>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="ui form">
+                <div class="field">
+                    <input type="text" name="title" placeholder="标题" id="input-title" required>
+                </div>
+
+                <div class="field editor-container" >
+                    <textarea id="editor" ></textarea>
+                </div>
+                
+                <input type="hidden" name="content" id="input-content">
+
+                <div class="field">
+                    <input name="tag" placeholder="文章标签 用 ; 分割" id="input-tag">
+                </div>
+
+                <button class="ui primary button" type="submit">
+                    <i class="fa-solid fa-paper-plane"></i> GO
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+<script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+
+<script>
+    const mde = new EasyMDE({
+        element: document.getElementById('editor'),
+        minHeight: '500px',
+        maxHeight: '500px',
+        spellChecker: false,
+        placeholder: '文章内容'
+    });
+
+    $('form').submit(function () {
+        $(this).find('input[name="content"]').val(mde.value());
+        return true;
+    });
+</script>
+
+
+{% endblock %}

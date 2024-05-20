@@ -1,0 +1,58 @@
+{% extends "zone/base.html" %}
+
+{% block title %}Chat{% endblock %}
+
+{% block head %}
+<script src="//cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<link href="/static/css/chat.css" rel="stylesheet">
+
+<input type="hidden" id="input-username" value="{{ request.user.username }}">
+<input type="hidden" id="input-avatar" value="{{ request.user.avatar.url }}">
+<input type="hidden" id="input-role" value="{{ request.user.role }}">
+<input type="hidden" id="input-facility" value="{{ request.user.facility.id }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="ui center aligned middle aligned grid" style="min-height: 100%;">
+    <div class="ten wide computer ten wide tablet fourteen wide mobile column ui segment" style="background-color: #ffffffd7;">
+        <div class="ui active inverted dimmer">
+            <div class="ui active text loader">正在连接</div>
+        </div>
+
+        <div class="ui left aligned message-container">
+            <div class="ui feed" id="message-container">
+                
+            </div>
+        </div>
+        <div id="quill-toolbar">
+            <span class="ql-formats">
+                <select class="ql-size">
+                    <option value="small">小</option>
+                    <option selected>正常</option>
+                    <option value="large">大</option>
+                    <option value="huge">巨大</option>
+                </select>
+            </span>
+            <span class="ql-formats">
+                <button class="ql-bold"></button>
+                <button class="ql-italic"></button>
+                <button class="ql-underline"></button>
+                <button class="ql-strike"></button>
+            </span>
+            <span class="ql-formats">
+                <button class="ql-image"></button>
+                <button class="ql-link"></button>
+            </span>
+        </div>
+        <div class="editor"></div>
+        <button class="ui button primary " style="margin: 6px;" onclick="send()" id="button-send">
+            <i class="fa-solid fa-paper-plane"></i> 发送 (Ctrl + Enter)
+        </button>
+    </div>
+</div>
+
+<script src="/static/js/chat/message.js"></script>
+<script src="/static/js/chat/chat.js"></script>
+{% endblock %}

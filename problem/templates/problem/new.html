@@ -1,0 +1,109 @@
+{% extends "problem/base.html" %}
+
+{% load static %}
+
+{% block content %}
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+
+<style>
+    .editor-container {
+        text-align: left !important;
+    }
+</style>
+<div class="ui center aligned grid">
+    <div class="ui inverted dimmer" id="dimmer">
+        <div class="ui text loader">正在请求</div>
+    </div>
+
+    <div class="row">
+        <div class="ui nine wide computer nine wide tablet fourteen wide mobile column segment" style="background-color: #ffffffc1;">
+            <h1>
+                新建题目
+            </h1>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="ui form">
+                    <div class="field">
+                        <input type="text" name="title" placeholder="题目标题" id="input-title" required>
+                    </div>
+
+                    <div class="field editor-container">
+                        <textarea id="editor"></textarea>
+                    </div>
+
+                    <input type="hidden" name="statement">
+
+                    <div class="field">
+                        <textarea name="answer" placeholder="参考答案" id="input-answer" required></textarea>
+                    </div>
+
+                    <div class="field">
+                        <input name="tag" placeholder="题目标签 用 ; 分隔" id="input-tag" required>
+                    </div>
+
+                    <button class="ui button" type="submit">GO</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="ui four wide computer four wide tablet fourteen wide mobile column segment" style="background-color: #ffffffc1;">
+            <h1>
+                生成
+            </h1>
+            <div class="ui form">
+                <div class="field">
+                    <textarea placeholder="在这里输入描述，例如“生成关于图灵的题目”" id="input-keyword"></textarea>
+                </div>
+
+                <button class="ui button" id="button-generate">GO</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+<script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+
+<script>
+    const mde = new EasyMDE({
+        element: document.getElementById('editor'),
+        minHeight: '300px',
+        maxHeight: '300px',
+        spellChecker: false,
+        placeholder: '题目描述'
+    });
+
+    $('form').submit(function () {
+        $(this).find('input[name="statement"]').val(mde.value());
+        return true;
+    });
+
+    $('#button-generate').click(function (e) {
+        $('#dimmer').toggleClass('active');
+
+        $.ajax({
+            method: 'POST',
+            url: "{% url 'problem:generate' %}",
+            data: {
+                keyword: $('#input-keyword').val(),
+                template: 'problem',
+                type: 'generateProblem'
+            },
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: data => {
+                mde.value(data.statement);
+                $('#input-answer').val(data.answer);
+            }
+        }).always(() => {
+            $('#dimmer').toggleClass('active');
+        });
+    })
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block topmenu %}
+{% if request.user.is_staff %}
+<a class="item" href="{% url 'adminc:user' %}" data-slave-app="admin">
+    <i class="fa-solid fa-user"></i> 用户管理
+</a>
+<a class="item" href="{% url 'adminc:facility' %}" data-slave-app="admin">
+    <i class="fa-solid fa-building-user"></i> 班级管理
+</a>
+{% endif %}
+{% if request.user.role == 'teacher' and not request.user.is_staff%}
+<a class="item" href="{% url 'adminc:student' %}" data-slave-app="student">
+    <i class="fa-solid fa-user"></i> 学生管理
+</a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block topmenu %}
+<a class="item" href="{% url 'problem:index' %}" data-slave-app="problem">
+    <i class="fa-solid fa-list"></i> 题目列表
+</a>
+
+{% if request.user.role == 'teacher' %}
+<a class="item" href="{% url 'problem:new' %}" data-slave-app="problem">
+    <i class="fa-solid fa-plus"></i> 新建题目
+</a>
+{% endif %}
+
+
+{% endblock %}

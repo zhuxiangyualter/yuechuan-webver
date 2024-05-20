@@ -1,0 +1,50 @@
+{% extends "paper/base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<style>
+    .ui.celled.padded.center.aligned.table {
+        background-color: rgba(255, 255, 255, 0.662);
+    }
+</style>
+
+<div class="ui center aligned text container" style="padding-top: 24px;">
+    <h1>试卷列表</h1>
+    <table class="ui center aligned celled table" style="background-color: #ffffffbe;">
+        <thead>
+            <tr>
+                <th style="background-color: #ffffff00;">ID</th>
+                <th style="background-color: #ffffff00;">标题</th>
+                <th style="background-color: #ffffff00;">创建日期</th>
+                {% if request.user.role == 'teacher' %}
+                <th style="background-color: #ffffff00;">导航</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for paper in papers %}
+            <tr>
+                <td>{{ paper.id }}</td>
+                <td><a href="{% url 'paper:view' paper.id %}">{{ paper.title }}</a></td>
+                <td>{{ paper.date | date:"Y/m/d" }}</td>
+                {% if request.user.role == 'teacher' %}
+                <td>
+                    <a href="{%  url 'paper:papersubmissions' paper.id %}">
+                        提交记录
+                    </a>
+                    <a href="{%  url 'paper:statistics' paper.id %}">
+                        统计
+                    </a>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <ul id="paper-list">
+    </ul>
+</div>
+
+{% endblock %}

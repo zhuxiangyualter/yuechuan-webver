@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+
+<div class="ui center aligned middle aligned grid" style="height: 100%">
+    <div class="six wide computer ten wide tablet fourteen wide mobile column">
+        <form class="ui form" action="{% url 'user:login' %}" method="post">
+            <div class="ui segment" style="background-color: #ffffffbe;">
+                <h2>
+                    登录 | 阅川
+                </h2>
+                {% csrf_token %}
+                <div class="field">
+                    <div class="ui left icon input">
+                        <input placeholder="用户名" type="text" name="username" required>
+                        <i class="icon fa-solid fa-user"></i>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="ui left icon input">
+                        <input placeholder="密码" type="password" name="password" required>
+                        <i class="icon fa-solid fa-key"></i>
+                    </div>
+                </div>
+
+                <button class="ui primary button fluid">
+                    登录
+                </button>
+            </div>
+        </form>
+
+        {% if error_message %}
+        <div class="ui error message">
+            {{ error_message }}
+        </div>
+        {% endif %}
+
+        <div class="ui message">
+            没有账号？ <a href="{% url 'user:register' %}">注册</a>
+        </div>
+        <div class="ui message">
+            <h2>示例账密</h2>
+            <div style="text-align: left;">
+                <ul>
+                    <li>
+                        <strong>用户名：</strong> 孙超
+                        <br>
+                        <strong>密码：</strong> 123123
+                        <br>
+                        <strong>职位：</strong> 学生
+                    </li>
+                    <div class="ui divider"></div>
+                    <li>
+                        <strong>用户名：</strong> 王军
+                        <br>
+                        <strong>密码：</strong> 123123
+                        <br>
+                        <strong>职位：</strong> 教师
+                    </li>
+                    <div class="ui divider"></div>
+                    <li>
+                        <strong>用户名：</strong> 刘章
+                        <br>
+                        <strong>密码：</strong> 123123
+                        <br>
+                        <strong>职位：</strong> 管理员
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

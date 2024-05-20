@@ -1,0 +1,149 @@
+{% extends "adminc/base.html" %}
+
+{% load static %}
+
+{% block content %}
+<style>
+    .icon:not(.ui) {
+        pointer-events: none;
+    }
+</style>
+<div class="ui center aligned middle aligned grid" style="height: 100%">
+    <input type="hidden" id="ajax-url" value='{% url "adminc:user" %}'>
+    <input type="hidden" id="csrf-token" value='{{csrf_token}}'>
+    <div class="nine wide computer nine wide tablet sixteen wide mobile column">
+
+        <h1>用户列表</h1>
+        <table class="ui center aligned celled table">
+            <thead>
+                <tr>
+                    <th id="list">ID</th>
+                    <th id="list">用户名</th>
+                    <th id="list">班级</th>
+                    <th id="list">职位</th>
+                    <th id="list">操作</th>
+                </tr>
+            </thead>
+            <tbody id="user-list">
+                {% for user in users %}
+                <tr data-userid="{{ user.id }}" data-username="{{ user.username }}"
+                    data-facility="{{ user.facility.id }}" data-role="{{ user.role }}" id="list">
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.facility.name | default:"Null" }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>
+                        <div class="ui icon buttons">
+                            <button class="ui icon button button-delete-user" data-content="删除用户">
+                                <i class="fa-solid fa-trash icon"></i>
+                            </button>
+                            {% if user.is_active %}
+                            <button class="ui icon button button-ban-user" data-content="封禁用户">
+                                <i class="fa-solid fa-ban icon"></i>
+                            </button>
+                            {% else %}
+                            <button class="ui icon button button-ban-user" data-content="解封用户">
+                                <i class="fa-solid fa-rotate icon"></i>
+                            </button>
+                            {% endif %}
+                            <button class="ui icon button button-edit-user" data-content="编辑用户">
+                                <i class="fa-solid fa-edit icon"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="5" id="list">
+                        <div class="ui two item menu">
+                            <a class="menu item" id="button-prev">
+                                <i class="fa-solid fa-angle-left icon"></i>
+                            </a>
+
+                            <a class="menu item" id="button-next">
+                                <i class="fa-solid fa-angle-right icon"></i>
+                            </a>
+                        </div>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="ui modal">
+        <div class="header">
+            编辑用户 <span id="dialog-username"></span>
+        </div>
+
+        <div class="content">
+            <form class="ui form" method="post" id="form-edit-user">
+                {% csrf_token %}
+                <input type="hidden" name="type" value="edit">
+                <input type="hidden" name="id">
+                <div class="field">
+                    <input type="text" name="username" placeholder="用户名" autocomplete="off">
+                </div>
+                <div class="field">
+                    <div class="ui selection dropdown" id="dropdown-role">
+                        <input type="hidden" name="role">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">职位</div>
+                        <div class="menu">
+                            <div class="item" data-value="teacher">教师</div>
+                            <div class="item" data-value="student">学生</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui selection dropdown" id="dropdown-facility">
+                        <input type="hidden" name="facility">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">班级</div>
+                        <div class="menu">
+                            <div class="ui icon search input">
+                                <i class="search icon"></i>
+                                <input type="text" placeholder="搜索...">
+                            </div>
+                            <div class="item" data-value=""><i>Null</i></div>
+                            {% for facility in facilities %}
+                            <div class="item" data-value="{{ facility.id }}">{{ facility.name }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="actions">
+            <button class="ui red deny button">
+                取消
+            </button>
+            <button class="ui green button" type="submit" form="form-edit-user">
+                确认
+            </button>
+        </div>
+    </div>
+</div>
+<script src="{% static 'js/adminc/user.js' %}"></script>
+
+<script>
+    const page = Number(new URL(window.location).searchParams.get('page') ?? 1);
+    const totalPages = Number('{{ pages }}');
+
+    if (page == 1) {
+        $('#button-prev').addClass('disabled');
+    }
+    else {
+        $('#button-prev').attr('href', `${window.location.pathname}?page=${page - 1}`);
+    }
+
+    if (page == totalPages) {
+        $('#button-next').addClass('disabled');
+    }
+    else {
+        $('#button-next').attr('href', `${window.location.pathname}?page=${page + 1}`);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "zone/base.html" %}
+{% load static %}
+{% load markdown %}
+
+{% block content %}
+<div class="ui container segment">
+    <div class="ui text container">
+        <h1 style="text-align: center;">
+            {{ post.title | default:"<i>无标题</i>" }}
+        </h1>
+        
+        <p style="text-align: center;color: #000;">
+            {{ post.date|date:"Y/m/d"}} | 由 {{ post.author.username }} 撰写
+        </p>
+        <div class="ui segment" id="post-back">
+        <div>
+            {{ post.content | markdown | safe }}
+        </div>
+        </div>
+    </div>
+
+    <div class="ui horizontal divider">
+        评论
+    </div>
+
+    <div class="ten wide computer ten wide tablet sixteen wide mobile column">
+
+        <div class="ui text container" >
+            <form method="POST">
+                {% csrf_token %}
+                <div class="ui form">
+                    <input type="hidden" name="reply" id="input-reply-id">
+                    <p id="text-reply"></p>
+                    <div class="field" style="display: flex;">
+                        <input name="comment" placeholder="输入评论..." required>
+                        <button class="ui button" type="submit" style="font-weight: bold;">GO</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+
+        <div class="ui text container comment-container">
+            <div class="ui segment" id="post-back">
+            {% for comment in comments %}
+            <div class="ui left aligned container comment" style="margin: 12px;"
+                data-reply="{{ comment.reply.id | default:'' }}" data-id="{{ comment.id }}">
+                
+                <span>
+                    <b>
+                        {{ comment.author.username }}
+                    </b>
+                    <span class="comment-date"> #{{ comment.id }} {{ comment.date|date:"Y/m/d H:i:s" }}</span>
+                    <a onClick="setReply(Number('{{ comment.id }}'))" class="comment-reply-button">回复</a>
+                </span>
+                <p>
+                    {{ comment.content }}
+                </p>
+
+                <div class="reply-container">
+                </div>
+            </div>
+            {% empty %}
+            <i>
+                暂无评论
+            </i>
+        </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function setReply(id) {
+        $('#input-reply-id').val(id);
+        $('#text-reply').text('回复 #' + id.toString());
+    }
+
+    $('.comment').filter((i, e) => $(e).data('reply') != '')
+        .each((i, e) => {
+            const target = $('.comment').filter((j, f) => $(e).data('reply') == $(f).data('id'));
+            $(e).appendTo(target.first().children('.reply-container'))
+        })
+</script>
+{% endblock %}

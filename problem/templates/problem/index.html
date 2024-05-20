@@ -1,0 +1,105 @@
+{% extends "problem/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .ui.celled.padded.center.aligned.table {
+        background-color: rgba(255, 255, 255, 0.8);
+    }
+    .list {
+        max-height: 60%;
+        flex: auto;
+    }
+</style>
+<input type="hidden" id="ajax-url" value='{% url "problem:index" %}'>
+<input type="hidden" id="csrf-token" value='{{csrf_token}}'>
+<div class="ui center aligned grid" style="padding-top: 24px;">
+    <div class="row">
+        <h1>
+            题目
+        </h1>
+    </div>
+    <div class="eleven wide computer eleven wide tablet sixteen wide mobile column">
+        <table class="ui celled padded center aligned table list">
+            <thead >
+                <tr>
+                    <th style="background-color: #ffffff00;">题目ID</th>
+                    <th style="background-color: #ffffff00;">标题</th>
+                    <th style="background-color: #ffffff00;">标签</th>
+                   
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for problem in problems %}
+                <tr>
+                    <td>
+                        {{ problem.id }}
+                    </td>
+                    <td>
+                        <a href="{% url 'problem:view' problem.id %}">
+                            {{ problem.title }}
+                        </a>
+                    </td>
+                    <td>
+                        {% for tag in problem.tag_set.all %}
+                        <span class="tag">
+                            <i class="fa-solid fa-tag"></i>
+                            {{ tag.text }}
+                        </span>
+                        {% endfor %}
+                    </td>
+                    <!-- <td>
+                        {% if problem.latest_solution %}
+                        <a href="{% url 'problem:view_solution' problem.latest_solution %}">
+                            查看题解
+                        </a>
+                        {% else %}
+                        <i>无题解</i>
+                        {% endif %}
+                    </td> -->
+                </tr>
+                {% endfor %}
+            </tbody>
+
+            {% if request.user.role == "teacher" %}
+            <tfoot>
+                <tr>
+                    <th colspan="4" style="background-color: #ffffff00;">
+                        <a class="ui right floated green button" href="{% url 'problem:new' %}" style="background-color: rgba(91, 135, 91, 0.626);">
+                            <i class="fa-solid fa-plus"></i> 新建题目
+                        </a>
+                    </th>
+                </tr>
+            </tfoot>
+            {% endif %}
+
+        </table>
+    </div>
+    <div class="four wide column">
+        <div class="ui form segment" style="min-height: 100%; background-color: #ffffffe2;">
+            <div class="ui inverted dimmer">
+                <div class="ui text loader">正在加载</div>
+            </div>
+            <div class="field">
+                <div class="ui multiple search selection dropdown">
+                    <input type="hidden" name="tags">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">按标签搜索</div>
+                    <div class="menu">
+                        {% for tag in tags %}
+                        <div class="item" data-value="{{ tag.id }}">{{ tag.text }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="ui left aligned middle aligned container">
+                <div class="ui relaxed list" id="search-results">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'js/problem/problem.js' %}"></script>
+{% endblock %}

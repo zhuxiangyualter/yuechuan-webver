@@ -1,0 +1,71 @@
+{% extends "problem/base.html" %}
+{% load static %}
+{% load markdown %}
+
+{% block content %}
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<div class="ui center aligned grid">
+    <div class="ui eleven wide column segment" style="background-color: #ffffffc1;">
+        <h1>
+            {{ problem.title }}
+        </h1>
+
+        <div class="ui divider"></div>
+
+        <div style="margin-top: 24px; margin-bottom: 24px;">
+            {{ problem.statement | markdown | safe }}
+        </div>
+        {% if request.user.role == 'teacher' or request.user.role == 'student'%}
+        <div class="ui form">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="field">
+                    <textarea style="background-color: rgba(255, 255, 255, 0.5);" placeholder="写下你的答案" name="content"
+                        required></textarea>
+                </div>
+
+                <button class="ui button" type="submit" style="background-color: rgba(36, 131, 165, 0.5);">
+                    <i class="fa-solid fa-check"></i>
+                    提交
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    <div class="row">
+        <div class="ui eleven wide column segment" style="background-color: #ffffffc1;">
+            <div id="answer" style="display: none;">
+                {% for sln in solutions %}
+                <div class="ui vertical segment">
+                    <h4>
+                        <a href="{% url 'problem:view_solution' sln.id %}" style="color: black;">
+                            {{ sln.creator }}
+                        </a>
+                    </h4>
+                    <div class="description">
+                        {{ sln.content | truncatechars:32 }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="ui buttons">
+                <button class="ui button" id="hide-button">隐藏他人作答</button>
+                <div class="or"></div>
+                <button class="ui positive button" id="show-button">参考他人作答</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function() {
+        $('#show-button').click(function() {
+            $('#answer').fadeIn();
+        })
+        $('#hide-button').click(function() {
+            $('#answer').fadeOut();
+        })
+    });
+</script>
+{% endblock %}

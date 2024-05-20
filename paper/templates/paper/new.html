@@ -1,0 +1,90 @@
+{% extends "paper/base.html" %}
+
+{% load static %}
+
+{% block head %}
+<style>
+    .search-box {
+        margin-bottom: 20px;
+    }
+
+    .question {
+        margin-bottom: 10px;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<input type="hidden" id="ajax-url" value='{% url "paper:new" %}'>
+<input type="hidden" id="index-url" value='{% url "paper:index" %}'>
+<input type="hidden" id="csrf-token" value='{{csrf_token}}'>
+<div class="ui center aligned relaxed grid" style="padding-top: 24px;">
+    <div class="row">
+        <div class="six wide computer six wide tablet sixteen wide mobile column ui segment" style="background-color: #ffffffa8;">
+            <h1 class="ui row">
+                新建试卷
+            </h1>
+
+            <form method="post">
+
+                {% csrf_token %}
+                <input type="hidden" name="type" value="submit">
+                <input type="hidden" name="problems">
+                <div class="ui right labeled fluid input">
+                    <input type="text" placeholder="试卷标题" name="title">
+                    <button class="ui label button" type="submit">
+                        提交
+                    </button>
+                </div>
+
+
+                <h2>已选择的题目</h2>
+                <table class="ui center aligned celled table">
+                    <thead>
+                        <tr>
+                            <th id="list">ID</th>
+                            <th id="list">标题</th>
+                            <th id="list">分值</th>
+                            <th id="list">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="selected-problems">
+
+                    </tbody>
+                    <tfoot>
+
+                    </tfoot>
+                </table>
+            </form>
+        </div>
+        <div class="four wide computer four wide tablet sixteen wide mobile column ui segment" style="background-color: #ffffffa8;">
+            <h2>搜索题目</h2>
+            <div class="ui form">
+                <div class="ui inverted dimmer">
+                    <div class="ui text loader">正在加载</div>
+                </div>
+                <div class="field">
+                    <div class="ui multiple search selection dropdown">
+                        <input type="hidden" name="tags">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">选择标签...</div>
+                        <div class="menu">
+                            {% for tag in tags %}
+                            <div class="item" data-value="{{ tag.id }}">{{ tag.text }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="ui left aligned middle aligned container">
+                    <div class="ui relaxed list" id="search-results">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/paper/new.js' %}"></script>
+
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="ui center aligned middle aligned grid" style="height: 100%">
+    <div class="six wide computer ten wide tablet fourteen wide mobile column">
+        <form class="ui form" action="{% url 'user:register' %}" method="post">
+            <div class="ui segment" style="background-color: #ffffffbe;">
+                <h2>
+                    注册 | 阅川
+                </h2>
+                {% csrf_token %}
+                <div class="field">
+                    <div class="ui left icon input">
+                        <input placeholder="用户名" type="text" name="username" required>
+                        <i class="icon fa-solid fa-user"></i>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="ui left icon input">
+                        <input placeholder="密码" type="password" name="password" required>
+                        <i class="icon fa-solid fa-key"></i>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="ui left icon input">
+                        <input placeholder="确认密码" type="password" name="confirm-password" required>
+                        <i class="icon fa-solid fa-key"></i>
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <div class="ui left icon input">
+                        <input placeholder="班级邀请码" type="number" name="invitation-code" required>
+                        <i class="icon fa-solid fa-building"></i>
+                        <!-- <i class="icon fa-solid fa-key"></i> -->
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="ui left icon input">
+                        <input placeholder="授权密钥(教师填写)" name="auth-secret">
+                        <i class="icon fa-solid fa-key"></i>
+                    </div>
+                </div>
+
+                <button class="ui primary button fluid">
+                    确认
+                </button>
+            </div>
+        </form>
+
+        {% if error_message %}
+        <div class="ui error message">
+            {{ error_message }}
+        </div>
+        {% endif %}
+
+        <div class="ui message">
+            已有账号？ <a href="{% url 'user:login' %}">登录</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

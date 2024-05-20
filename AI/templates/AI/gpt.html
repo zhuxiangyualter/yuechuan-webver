@@ -1,0 +1,124 @@
+{% extends "AI/base.html" %}
+
+{% load static %}
+
+{% block head %}
+<script src="{% static 'js/ai/gpt.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<input type="hidden" id="ajax-url" value='{% url "AI:gpt" %}'>
+<input type="hidden" id="csrf-token" value='{{csrf_token}}'>
+<input type="hidden" id="input-username" value='{{ request.user.username }}'>
+<input type="hidden" id="input-avatar" value='{{ request.user.avatar.url }}'>
+
+<style>
+    .answer-container {
+        max-height: 500px;
+        min-height: 500px;
+        border: 1px solid lightgrey;
+        margin-bottom: 6px;
+        padding: 12px;
+        overflow-y: auto;
+    }
+    .recommend {
+        height: 80%;
+    }
+</style>
+
+<div class="ui center aligned padded grid">
+    <div class="ui eleven wide column">
+        <div class="ui segment" style="background-color: #ffffffc1;">
+            <h1>智能问答</h1>
+
+            <div class="ui left aligned feed container answer-container" style="font-size: 1.2em"></div>
+    
+            <div class="ui form">
+                <div class="ui inverted dimmer">
+                    <div class="ui loader"></div>
+                </div>
+                <textarea class="field" placeholder="问你想问的" id="question"></textarea>
+                <button class="ui primary button" id="button-submit">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    提问
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="ui four wide column">
+        <div class="ui segment recommend" style="background-color: #ffffffc1;">
+            <h4 class="ui horizontal divider ">猜你想问</h4>
+            <div class="ui segment" id="ask1">
+                <div id="skeleton" style="display: '';">
+                    <div class="ui placeholder">
+                        <div class="long line"></div>
+                    </div>
+                </div>
+                <div class="ui form rec-ui" style="display:  none;">
+                    <div class="field">
+                        <input style="resize: none;" id="rc1" readonly>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="ui segment" id="ask2">
+                <div id="skeleton" style="display: '';">
+                    <div class="ui placeholder">
+                        <div class="long line"></div>
+                    </div>
+                </div>
+                <div class="ui form rec-ui" style="display:  none;">
+                    <div class="field">
+                        <input style="resize: none;" id="rc2" readonly>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="ui segment" id="ask3">
+                <div id="skeleton" style="display: '';">
+                    <div class="ui placeholder">
+                        <div class="long line"></div>
+                    </div>
+                </div>
+                <div class="ui form rec-ui" style="display:  none;">
+                    <div class="field">
+                        <input style="resize: none;" id="rc3" readonly>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="ui segment" id="ask4">
+                <div id="skeleton" style="display: '';">
+                    <div class="ui placeholder">
+                        <div class="long line"></div>
+                    </div>
+                </div>
+                <div class="ui form rec-ui" style="display:  none;">
+                    <div class="field">
+                        <input style="resize: none;" id="rc4" readonly>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="ui segment" id="ask5">
+                <div id="skeleton" style="display: '';">
+                    <div class="ui placeholder">
+                        <div class="long line"></div>
+                    </div>
+                </div>
+                <div class="ui form rec-ui" style="display:  none;">
+                    <div class="field">
+                        <input style="resize: none;" id="rc5" readonly>
+                    </div>
+                </div>
+            </div>
+            <button class="ui primary button" id="button-refresh">
+                <i class="fa-solid fa-sync alternate"></i>
+                换一换
+            </button>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

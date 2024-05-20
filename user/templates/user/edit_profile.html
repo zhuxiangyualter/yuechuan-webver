@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="ui center aligned middle aligned grid" style="height: 100%">
+    <div class="six wide computer six wide tablet sixteen wide mobile column ui segment" style="background-color: rgba(206, 221, 213, 0.744)">
+        <h2>修改个人信息</h2>
+        {{ error_message }}
+
+        <form class="ui form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="field">
+                <label for="avatar" class="ui icon button">
+                    <i class="file icon"></i> 选择头像
+                </label>
+                <input style="display: none;" type="file" id="avatar" name="avatar" accept="image/*">
+            </div>
+
+            <div class="field">
+                <div class="ui left icon input">
+                    <input type="password" placeholder="当前密码" name="currentPassword">
+                    <i class="fa-solid fa-key icon"></i>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="ui left icon input">
+                    <input type="password" placeholder="新密码" name="newPassword">
+                    <i class="fa-solid fa-key icon"></i>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="ui left icon input">
+                    <input type="password" placeholder="确认新密码" name="confirmPassword">
+                    <i class="fa-solid fa-key icon"></i>
+                </div>
+            </div>
+
+            <button class="ui green button" type="submit">
+                <i class="fa-solid fa-check"></i> 提交
+            </button>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

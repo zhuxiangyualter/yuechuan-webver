@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load markdown %}
+
+{% block head %}
+
+<style>
+    .dynamics {
+        max-height: 500px;
+        overflow: auto;
+    }
+
+    .banner {
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    .banner>img {
+        width: 100%;
+        object-fit: contain;
+    }
+
+    .banner-container>img {
+        width: 100%;
+        object-fit: contain;
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: inherit;
+        border-radius: 10px;
+    }
+
+    .banner-container>img:not(.active) {
+        opacity: 0;
+        transition: linear .3s;
+    }
+
+    .banner-container>img.active {
+        opacity: 1;
+        transition: linear .3s;
+        z-index: 999;
+    }
+
+    .banner>img.placeholder {
+        opacity: 0;
+    }
+</style>
+
+{% endblock %}
+
+{% block topmenu %}
+<div class="item" style="flex: 1; text-align: center; justify-content: center;">
+    <h2>
+        {{ request.user.facility.name | default:"Null"}}
+    </h2>
+</div>
+{% endblock %}
+
+{% block content %}
+<input type="hidden" id="banner-url1" value='https://www.bilibili.com/video/BV1ia4y1V7DA/?share_source=copy_web&vd_source=1604217a352dea550be8434ee0984b59'>
+<input type="hidden" id="banner-url2" value='https://www.bilibili.com/video/BV1ja411h7TJ/?share_source=copy_web&vd_source=1604217a352dea550be8434ee0984b59'>
+<input type="hidden" id="banner-url3" value='https://www.bilibili.com/video/BV1nt411t7bG/?share_source=copy_web&vd_source=1604217a352dea550be8434ee0984b59'>
+<input type="hidden" id="banner-url4" value='{% url "paper:new" %}'>
+<div class="ui center aligned grid">
+    <div class="ui sixteen wide computer sixteen wide tablet sixteen wide mobile column">
+        <div class="ui center aligned grid">
+            <div class="ui fifteen wide column banner">
+                <div class="banner-container" style="position: relative;">
+                    <img src="{% static 'img/banner/1.png' %}" class="active" onclick="banner1Click()">
+                    <img src="{% static 'img/banner/2.png' %}" onclick="banner2Click()">
+                    <img src="{% static 'img/banner/3.png' %}" onclick="banner3Click()">
+                    <!-- <img src="{% static 'img/banner/4.png' %}" onclick="banner4Click()"> -->
+                </div>
+                <img src="{% static 'img/banner/1.png' %}" class="placeholder">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="ui fifteen wide column message" style="background-color: #ffffff73;">
+            <i class="bullhorn icon"></i>
+            <div class="header">欢迎回来！ </div>
+            <p>在阅川，快乐LEARN & LIFE</p>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="ui fifteen wide column segment" style="background-color: #ffffffbe;">
+
+            <div class="ui three column very relaxed grid">
+                <div class="column">
+                    <h2>推荐题目</h2>
+                    {% for problem in recommend %}
+                    <div class="ui vertical segment">
+                        <h4>
+                            <a href="{% url 'problem:view' problem.id %}" style="color: black;">
+                                {{ problem.title }}
+                            </a>
+                        </h4>
+                        <div class="description">
+                            {{ problem.statement | unmarkdown | truncatechars:32 }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="column">
+                    <h2>推荐文章</h2>
+                    {% for post in recommendpost %}
+                    <div class="ui vertical segment">
+                        <h4>
+                            <a href="{% url 'zone:view' post.id %}" style="color: black;">
+                                {{ post.title }}
+                            </a>
+                        </h4>
+                        <div class="description">
+                            {{ post.content | unmarkdown | truncatechars:32 }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="column">
+                    <h2>动态</h2>
+                    <div class="ui feed padded dynamics">
+                        {% for item in feed %}
+                        <div class="event">
+                            <div class="label">
+                                <img class="avatar" src="{{ item.user.avatar.url }}">
+                            </div>
+
+                            <div class="content">
+                                <div class="summary">
+                                    <div class="user">
+                                        {{ item.user.username }}
+                                    </div>
+                                    {% if item.type == 'post' %}
+                                    发布了文章
+                                    {% elif item.type == 'problem' %}
+                                    发布了题目
+                                    {% endif %}
+
+                                    <div class="date">
+                                        {{ item.date | date:"Y/m/d" }}
+                                    </div>
+                                </div>
+
+                                <div class="extra text">
+                                    <h5>
+                                        {% if item.type == 'problem' and item.solved %}
+                                        <i class="fa-solid fa-check" title="已提交"></i>
+                                        {% endif %}
+                                        <a href="{{ item.link }}">
+                                            {{ item.title | default:"<i>无标题</i>" }}
+                                        </a>
+                                    </h5>
+
+                                    {{ item.subtitle | unmarkdown | truncatechars:32 }}
+                                </div>
+                            </div>
+
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let bannerImg = 0;
+    const imgs = $('.banner-container > img');
+    setInterval(() => {
+        $(imgs.get(bannerImg)).removeClass('active');
+        bannerImg = (bannerImg + 1) % imgs.length;
+        $(imgs.get(bannerImg)).addClass('active');
+    }, 5000);
+    const dates = [];
+
+    for (var i = 0; i < 28; ++i) {
+        const t = new Date();
+        t.setDate(t.getDate() - i);
+        dates.push(t.getMonth().toString() + '/' + t.getDate().toString());
+    }
+
+    new Chart(document.getElementById('problems-statistics'), {
+        type: 'line',
+        data: {
+            labels: dates.reverse(),
+            datasets: [{
+                label: '提交数',
+                data: JSON.parse('{{ stat.solution_trend }}').reverse()
+            }]
+        }
+    });
+
+    const accepted = Number('{{ stat.accepted_solutions }}');
+    const total = Number('{{ stat.total_solutions }}');
+    const unjudged = Number('{{ stat.unjudged_solutions }}');
+
+    new Chart(document.getElementById('solution-percentage'), {
+        type: 'doughnut',
+        data: {
+            labels: ['通过', '未通过', '未评分'],
+            datasets: [{
+                label: '提交数',
+                backgroundColor: [
+                    'rgb(161, 250, 79)',
+                    'rgb(235, 79, 58)',
+                    'rgb(144, 144, 144)'
+                ],
+                data: [accepted, total - accepted - unjudged, unjudged],
+                weight: 0.5,
+            }],
+        }
+    })
+    function banner1Click() {
+        window.location.href = $('#banner-url1').val();
+    }
+    function banner2Click() {
+        window.location.href = $('#banner-url2').val();
+    }
+    function banner3Click() {
+        window.location.href = $('#banner-url3').val();
+    }
+    function banner4Click() {
+        window.location.href = $('#banner-url4').val();
+    }
+</script>
+
+{% endblock %}

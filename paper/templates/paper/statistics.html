@@ -1,0 +1,47 @@
+{% extends "paper/base.html" %}
+
+{% load markdown %}
+
+{% block content %}
+
+<div class="ui center aligned grid" style="padding-top: 24px">
+    <div class="ui eight wide column segment" style="background-color: #ffffffc1;">
+        <h1 class="ui header">
+            {{ paper.title }} 的成绩分布图
+        </h1>
+        <canvas id="statistics" />
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const maxScore = Number('{{ paper.sum_score }}');
+    const scores = JSON.parse('{{ count | safe }}');
+    const grain = 5;
+
+    const data = [];
+    const labels = [];
+
+    for (let i = 0; i < maxScore; i += grain) {
+        let val = 0;
+        for (let j = i; j < i + grain; ++j) {
+            val += scores[j] ?? 0;
+        }
+        data.push(val);
+        labels.push(`${i} ~ ${i + grain - 1}`);
+    }
+
+    new Chart(document.getElementById('statistics'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '学生人数',
+                data: data
+            }]
+        }
+    });
+</script>
+
+{% endblock %}

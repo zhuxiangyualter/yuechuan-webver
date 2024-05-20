@@ -1,0 +1,34 @@
+{% extends "paper/base.html" %}
+
+{% load static %}
+{% load markdown %}
+
+{% block content %}
+<div class="ui padded text container segment" style="padding-top: 24px;background-color: #ffffffc1;">
+    <h1 class="ui header">{{ paper.title }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% for problem in problems %}
+        <div class="problem" data-pid="{{ problem.id }}">
+            <h2>
+                {{ forloop.counter }}. {{ problem.raw.title }} ({{ problem.score }} 分)
+            </h2>
+            <div>
+                {{ problem.raw.statement | markdown | safe }}
+            </div>
+            <div class="ui form">
+                <div class="field">
+                    <textarea style="background-color: #ffffffc1;" name="answer-{{ problem.raw.id }}" placeholder="填写答案..."></textarea>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="ui center aligned grid" style="margin-top: 24px;">
+            <button class="ui green button" type="submit">
+                <i class="fa-solid fa-check"></i> 提交
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

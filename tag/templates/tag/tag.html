@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>All Tags</title>
+</head>
+
+<body>
+    <h1>All Tags</h1>
+    <ul>
+        {% for tag in tags %}
+        <li>{{ tag.text }}</li>
+        {% endfor %}
+    </ul>
+</body>
+
+</html>

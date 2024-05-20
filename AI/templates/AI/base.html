@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block topmenu %}
+<a class="item" href="{% url 'AI:gpt' %}" data-slave-app="ai">
+    <i class="fa-solid fa-robot"></i> AI助手
+</a>
+{% if request.user.role == 'teacher' %}
+<a class="item" href="{% url 'AI:slides' %}" data-slave-app="ai">
+    <i class="fa-brands fa-slideshare"></i> PPT生成
+</a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "AI/base.html" %}
+
+{% load static %}
+
+
+{% block content %}
+<script src="{% static 'js/ai/slides.js' %}"></script>
+
+<div class="ui center aligned container">
+    <input type="hidden" id="ajax-url" value='{% url "AI:slides" %}'>
+    <input type="hidden" id="status-url" value='{% url "AI:slides_refresh" 0 %}'>
+    <input type="hidden" id="csrf-token" value='{{ csrf_token }}'>
+    <input type="hidden" id="generation-id" value=''>
+    
+    <div class="ui center aligned padded grid segment" style="background-color: #ffffffc1;">
+        <div class="row">
+            <h1>提交描述</h1>
+        </div>
+        <div class="row">
+            <div class="five wide computer five wide tablet sixteen wide mobile column">
+                <div id="skeleton" style="display: none">
+                    <div class="ui placeholder">
+                        <div class="rectangular image"></div>
+                        <div class="long line"></div>
+                        <div class="short line"></div>
+                        <div class="short line"></div>
+                    </div>
+                </div>
+
+                <div id="preview" style="display: none">
+                    <img id="preview-cover" style="max-width: 100%">
+                    <h3 id="preview-title"></h3>
+                    <h5 id="preview-subtitle"></h5>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="ten wide computer ten wide tablet sixteen wide mobile column">
+                <div class="ui form">
+                    <div class="ui inverted dimmer" id="dimmer-input" >
+                        <div class="ui text loader" id="loader-input"></div>
+                    </div>
+                    <textarea class="field" id="description" placeholder="描述" rows="8" cols="50"></textarea>
+
+                    <button class="ui button" id="button-submit">生成</button>
+
+                    <button class="ui button primary" id="button-download" style="display: none">
+                        <i class="fa-solid fa-file-arrow-down"></i> 下载
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

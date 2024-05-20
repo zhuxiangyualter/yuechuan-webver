@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block topmenu %}
+<a class="item" href="{% url 'zone:index' %}" data-slave-app="discussion">
+    <i class="fa-solid fa-list"></i> 文章列表
+</a>
+
+<a class="item" href="{% url 'chat:chat' %}" data-slave-app="discussion">
+    <i class="fa-solid fa-comments"></i> 聊天室
+</a>
+
+<a class="item" href="{% url 'zone:new' %}" data-slave-app="discussion">
+    <i class="fa-solid fa-pen-to-square"></i> 新文章
+</a>
+
+{% endblock %}

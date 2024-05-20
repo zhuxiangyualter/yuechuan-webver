@@ -1,0 +1,42 @@
+{% extends "paper/base.html" %}
+
+{% block content %}
+
+<div class="ui center aligned grid" style="padding-top: 24px">
+    <div class="ten wide computer ten wide tablet sixteen wide mobile column">
+        <h1>试卷提交记录</h1>
+
+        <table class="ui center aligned celled table" style="background-color: rgba(255, 255, 255, 0.8);">
+            <thead>
+                <tr>
+                    <th style="background-color: #ffffff00;">ID</th>
+                    <th style="background-color: #ffffff00;">试卷标题</th>
+                    <th style="background-color: #ffffff00;">总分</th>
+                    <th style="background-color: #ffffff00;">操作</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for sub in submissions %}
+                <tr>
+                    <td>{{ sub.id }}</td>
+                    <td>{{ sub.paper.title }}</td>
+                    <td>{{ sub.score }} / {{ sub.max_score }}</td>
+                    <td>
+                        <a href="{% url 'paper:submission' sub.id %}">
+                            查看
+                        </a>
+                        {% if request.user.role == 'teacher' %}
+                        <a href="{% url 'paper:judge' sub.id %}">
+                            批改
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

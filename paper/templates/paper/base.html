@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block topmenu %}
+<a class="item" href="{% url 'paper:index' %}" data-slave-app="paper">
+    <i class="fa-solid fa-list"></i> 试题列表
+</a>
+
+<a class="item" href="{% url 'paper:submissions' %}" data-slave-app="paper">
+    <i class="fa-solid fa-paper-plane"></i> 提交记录
+</a>
+
+{% if request.user.role == 'teacher' %}
+<a class="item" href="{% url 'paper:new' %}" data-slave-app="paper">
+    <i class="fa-solid fa-plus"></i> 新建试题
+</a>
+{% endif %}
+
+
+{% endblock %}

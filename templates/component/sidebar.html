@@ -1,0 +1,39 @@
+{% load static %}
+
+<div class="item">
+    <a class="ui logo icon image" href="{% url 'index:index' %}">
+        <img src="{% static 'img/logo.png' %}" style="height:50px;">
+    </a>
+</div>
+<a class="item" href="{% url 'index:index' %}" data-app="index" style="padding: 2rem; display: flex; align-items: center;">
+    <i class="fa-solid fa-house" style="margin-right: 8px;"></i> 
+    <span style="margin-left: 10px;">首页</span>
+</a>
+<a class="item" href="{% url 'problem:index' %}" data-app="problem" style="padding: 2rem; display: flex; align-items: center;">
+    <i class="fa-solid fa-pen" style="margin-right: 8px;"></i>
+    <span style="margin-left: 10px;">智慧题集</span>
+</a>
+<a class="item" href="{% url 'paper:index' %}" data-app="paper" style="padding: 2rem; display: flex; align-items: center;">
+    <i class="fa-solid fa-paperclip" style="margin-right: 8px;"></i>
+    <span style="margin-left: 10px;">云测考场</span>
+</a>
+<a class="item" href="{% url 'zone:index' %}" data-app="discussion" style="padding: 2rem; display: flex; align-items: center;">
+    <i class="fa-solid fa-newspaper" style="margin-right: 8px;"></i>
+    <span style="margin-left: 10px;">文思论坛</span>
+</a>
+<a class="item" href="{% url 'AI:gpt' %}" data-app="ai" style="padding: 2rem; display: flex; align-items: center;">
+    <i class="fa-solid fa-robot" style="margin-right: 8px;"></i>
+    <span style="margin-left: 10px;">AI助学</span>
+</a>
+{% if request.user.role == 'teacher' and  not request.user.is_staff%}
+<a class="item" href="{% url 'adminc:student' %}" data-app="teacher" style="padding: 2rem; display: flex; align-items: center;">
+    <i class="fa-solid fa-user" style="margin-right: 8px;"></i>
+    <span style="margin-left: 10px;">后台管理</span>
+</a>
+{% endif %}
+{% if request.user.is_staff %}
+<a class="item" href="{% url 'adminc:user' %}" data-app="admin" style="padding: 2rem; display: flex; align-items: center;">
+    <i class="fa-solid fa-user-tie" style="margin-right: 8px;"></i>
+    <span style="margin-left: 10px;">后台管理</span>
+</a>
+{% endif %}
