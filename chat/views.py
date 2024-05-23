@@ -1,7 +1,17 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from user.models import *
-
-@login_required(login_url='user:login')
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from user.views import get_user_from_token
+from rest_framework.response import Response
+@permission_classes([IsAuthenticated])
 def chat(request):
-    return render(request, 'chat/chat.html')
+    token = request.headers.get('Authorization')
+    user = get_user_from_token(token)
+    return Response(
+        status = 200,
+        data = {
+            'message': 'chat page'
+        }
+    )

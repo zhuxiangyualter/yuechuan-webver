@@ -16,7 +16,10 @@ from user.models import User, Facility
 from problem.models import Problem, Solution
 from tag.models import *
 from paper.models import *
-
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from user.views import get_user_from_token
+from rest_framework.response import Response
 
 # 推荐文章或题目
 class Recommend():
@@ -112,10 +115,11 @@ class Recommend():
 
 
 
-
-@login_required(login_url='user:login')
+@permission_classes([IsAuthenticated])
 def index(request: HttpRequest):
-    facility = request.user.facility
+    token = request.headers.get('Authorization')
+    user = get_user_from_token(token)
+    facility = user.facility
 
     feed = []
 
@@ -131,8 +135,7 @@ def index(request: HttpRequest):
             })
 
     for problem in Problem.objects.filter(facility=facility):
-        solutions = Solution.objects.filter(creator=request.user, problem=problem).count()
-
+        solutions = Solution.objects.filter(creator=user, problem=problem).count()
         feed.append({
             'type': 'problem',
             'date': problem.date,
@@ -151,10 +154,15 @@ def index(request: HttpRequest):
     recommendPosts = Recommend(request.user, 0.1)
     recommendPosts = recommendPosts.recommend_posts(6)
 
-    return render(request, 'index/index.html', {
-        'feed': sorted(feed, key=lambda x: x['date'], reverse=True),
-        'problems': Problem.objects.filter(facility=facility).annotate(
-            max_score=Max('solution__score', filter=Q(creator__facility=facility))).filter(Q(max_score__lt=60)),
-        'recommend': recommendProblems,
-        'recommendpost': recommendPosts,
-    })
+    return Response(
+        data = {
+            'data': {
+            "feed": sorted(feed, key=lambda x: x['date'], reverse=True),
+            "problems": Problem.objects.filter(facility=facility).annotate(
+                max_score=Max('solution__score', filter=Q(creator__facility=facility))).filter(Q(max_score__lt=60)),
+            "recommend": recommendProblems,
+            "recommendpost": recommendPosts,
+            },  'message':'index/index.html'
+        },
+        status = 200
+    )

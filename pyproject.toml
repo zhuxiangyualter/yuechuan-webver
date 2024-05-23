@@ -24,6 +24,8 @@ mysqlclient = "^2.2.4"
 crypto = "^1.4.1"
 wheel = "^0.43.0"
 jwcrypto = "^1.5.6"
+djangorestframework = "^3.15.1"
+django-cors-headers = "^4.3.1"
 
 
 [build-system]

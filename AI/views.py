@@ -11,7 +11,10 @@ from .models import *
 from .slide_generator import SlidesAPI
 from index.views import Recommend
 from tag.models import *
-
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from user.views import get_user_from_token
+from rest_framework.response import Response
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv('OPENAI_KEY')
@@ -65,11 +68,17 @@ PROMPT_TEMPALTE = {
     )
 }
 
-
-@login_required(login_url='user:login')
+@permission_classes([IsAuthenticated])
 def gpt(request: HttpRequest):
+    token = request.headers.get('Authorization')
+    user = get_user_from_token(token)
     if request.method == 'GET':
-        return render(request, 'AI/gpt.html')
+        return Response(
+            status=200,
+            data={
+                'message': 'AI/gpt.html'
+            }
+        )
     if request.method == 'POST':
 
         if not request.POST.get('query'):
@@ -102,7 +111,9 @@ def gpt(request: HttpRequest):
             )
 
             return JsonResponse({
+                'data':{
                 'content': response.choices[0].message.content,
+                }
             })
 
         if request.POST['type'] == 'refresh':
@@ -111,7 +122,7 @@ def gpt(request: HttpRequest):
             recommendQ = []
 
             recommendTags = []
-            recommendTags = Recommend(request.user, 0.1)
+            recommendTags = Recommend(user, 0.1)
             recommendTags = recommendTags.recommend_tags(5)
 
             for tag in recommendTags:
@@ -143,30 +154,41 @@ def gpt(request: HttpRequest):
             #         recommendQ.append(response.choices[0].message.content)
 
             return JsonResponse({
+                'data':{
                 'recommendQ': recommendQ
+                }
             })
 
-
-@login_required(login_url='user:login')
+@permission_classes([IsAuthenticated])
 def genppt(request: HttpRequest):
+    token = request.headers.get('Authorization')
+    user = get_user_from_token(token)
     if request.method == 'GET':
-        return render(request, 'AI/slides.html')
+        return Response(
+            status=200,
+            data={
+                'message': 'AI/slides.html'
+            }
+        )
     if request.method == 'POST':
-        task = api.create_task(request.POST['description'], request.user)
+        task = api.create_task(request.POST['description'], user)
 
         if task is None:
             return HttpResponseServerError('Failed when spawning task')
 
         return JsonResponse({
+            'data':{
             'id': task.id,
             'cover': task.cover.url,
             'title': task.title,
             'subtitle': task.subtitle
+            }
         })
 
-
-@login_required(login_url='user:login')
+@permission_classes([IsAuthenticated])
 def refresh_state(request: HttpRequest, id: int):
+    token = request.headers.get('Authorization')
+    user = get_user_from_token(token)
     record = SlideGeneration.objects.get(id=id)
 
     if not record:
@@ -177,6 +199,8 @@ def refresh_state(request: HttpRequest, id: int):
     record.refresh_from_db()
 
     return JsonResponse({
+        'data':{
         'complete': complete,
         'url': record.result.url if record.status == 'complete' else ''
+        }
     })

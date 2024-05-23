@@ -14,27 +14,37 @@ from tag.models import *
 import openai
 from functools import reduce
 from problem.templatetags.markdown import unmarkup
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import AuthenticationFailed
+from user.views import get_user_from_token
+from rest_framework.response import Response
 
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv('OPENAI_KEY')
 
-@login_required(login_url='user:login')
+@permission_classes([IsAuthenticated])
 def index(request: HttpRequest):
+    token = request.headers.get('Authorization')
+    user = get_user_from_token(token)
     if request.method == 'GET':
-        problems = Problem.objects.filter(facility = request.user.facility) \
+        problems = Problem.objects.filter(facility = user.facility) \
                           .annotate(latest_solution = Max('solution__id'))
-        tags = Tag.objects.filter(problems__facility=request.user.facility).distinct()
-        return render(request, 'problem/index.html', {
-            'user': request.user,
-            'problems': problems,
-            'tags': tags,
+        tags = Tag.objects.filter(problems__facility=user.facility).distinct()
+        return JsonResponse({
+            'data':{
+                'problems': problems,
+                'tags': tags,
+                'user': user
+            },
+            'status': 200
         })
     if request.method == 'POST':
         print(request.POST['type'])
         if request.POST['type'] == 'search':
             tags = json.loads(request.POST['tags'])
-            result = reduce(lambda qs, tag: qs.filter(tag__id = tag), tags, Problem.objects.filter(facility=request.user.facility))
+            result = reduce(lambda qs, tag: qs.filter(tag__id = tag), tags, Problem.objects.filter(facility=user.facility))
             print(result)
             print({
                 'result': seq(result.values()).map(lambda x: {
@@ -50,8 +60,10 @@ def index(request: HttpRequest):
             }, safe=False)
 
     
-@login_required(login_url='user:login')
+@permission_classes([IsAuthenticated])
 def generate(request: HttpRequest):
+    token = request.headers.get('Authorization')
+    user = get_user_from_token(token)
     if request.method == 'POST':
         asyncio.run(asyncio.sleep(1))
 
@@ -90,56 +102,65 @@ def generate(request: HttpRequest):
             'statement': statement,
             'answer': answer,
         })
-
-@login_required(login_url='user:login')
+@permission_classes([IsAuthenticated])
 def view(request: HttpRequest, id: int):
+    token = request.headers.get('Authorization')
+    user = get_user_from_token(token)
     problem = Problem.objects.get(id = id)
     solutions = Solution.objects.filter(problem=problem)
     if request.method == 'GET':
-        return render(request, 'problem/view.html', {
-            'problem': problem,
-            'solutions': solutions,
+        return JsonResponse({
+            'data':{
+                'problem': problem,
+                'solutions': solutions,
+            },
+            'status': 200
         })
-    
     elif request.method == 'POST':
         sln = Solution.objects.create(
-            creator = request.user,
+            creator = user,
             problem = problem,
             content = request.POST['content']
         )
         sln.save()
-        return redirect('problem:view_solution', sln.id)
-
-@login_required(login_url='user:login')
+        return Response({
+            'data': {
+                'solution': sln.id
+            }
+        }, status=200)
+@permission_classes([IsAuthenticated])
 def view_solution(request: HttpRequest, id: int):
+    token = request.headers.get('Authorization')
+    user = get_user_from_token(token)
     try:
         sln = Solution.objects.get(id = id)
         comment = SlnComment.objects.filter(solution=sln)
     except Solution.DoesNotExist:
-        return render(request, '404.html')
+        return Response(status=404)
 
     if request.method == 'GET':
-        return render(request, 'problem/view_solution.html', {
-            'solution': sln,
-            'comments':comment,
-        })
+        return Response({
+            'data': {
+                'solution': sln,
+                'comments': comment
+            }
+        }, status=200)
     if request.method == 'POST':
-        comment = SlnComment.objects.create(author=request.user, content=request.POST['comment'], solution=sln)
-        return redirect('problem:view_solution', id)
-
-@login_required(login_url='user:login')
+        comment = SlnComment.objects.create(author=user, content=request.POST['comment'], solution=sln)
+        return Response(status=200, data={'data':{
+          'id' : id
+        } }
+                        )
+@permission_classes([IsAuthenticated])
 def new(request: HttpRequest):
-    if request.user.role != 'teacher':
-        return render(request, '403.html', status=403)
-
-    if request.method == 'GET':
-        return render(request, 'problem/new.html', {
-            'user': request.user
-        })
+    token = request.headers.get('Authorization')
+    user = get_user_from_token(token)
+    if user.role != 'teacher':
+        return Response(status=403)
     elif request.method == 'POST':
         problem = Problem.objects.create(
-            facility = request.user.facility,
-            creator = request.user,
+            facility = user.facility,
+            creator = user,
             title = request.POST['title'],
             statement = request.POST['statement'],
             answer = request.POST['answer'],
@@ -158,4 +179,6 @@ def new(request: HttpRequest):
 
         problem.save()
 
-        return redirect('problem:view', problem.id)
+        return Response(status=200, data={'data':{
+            'problem': problem.id
+        }})
